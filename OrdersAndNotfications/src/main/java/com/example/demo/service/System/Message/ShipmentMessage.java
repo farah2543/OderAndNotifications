@@ -1,9 +1,6 @@
 package com.example.demo.service.System.Message;
-
 import com.example.demo.model.Lang;
-import com.example.demo.model.MessageType;
 import com.example.demo.model.UserAccount;
-
 public class ShipmentMessage extends Message{
     @Override
     public Template_lang createLangTemplate(UserAccount account  , Long orderID){
@@ -15,7 +12,6 @@ public class ShipmentMessage extends Message{
             return null ;
         }
     }
-
     @Override
     public String toString() {
         return super.toString();

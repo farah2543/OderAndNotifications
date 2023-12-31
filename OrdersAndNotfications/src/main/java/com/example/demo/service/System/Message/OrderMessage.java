@@ -1,8 +1,6 @@
 package com.example.demo.service.System.Message;
-
 import com.example.demo.model.Lang;
 import com.example.demo.model.UserAccount;
-
 public class OrderMessage extends Message {
     @Override
     public Template_lang createLangTemplate(UserAccount account  , Long orderID) {

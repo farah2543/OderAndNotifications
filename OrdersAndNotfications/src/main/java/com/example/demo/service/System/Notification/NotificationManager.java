@@ -1,14 +1,14 @@
 package com.example.demo.service.System.Notification;
+import java.util.*;
 
-import com.example.demo.model.UserAccount;
 import com.example.demo.service.System.Message.Message;
-
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Timer;
-import java.util.TimerTask;
-
+import com.example.demo.service.System.Message.Template_lang;
+import javafx.util.Pair;
 public class NotificationManager {
+    PriorityQueue<Pair<Integer , String>> TopMailNotified ;
+    PriorityQueue<Pair<Integer , String>> TopMobil ;
+    PriorityQueue<Pair<Integer , Message>> TopTemplate ;
+    HashMap<String , Integer> MailFrequency = new HashMap<>() , MobilFrequency = new HashMap<>() , TemplateFrequency = new HashMap<>();
     public static Queue<Notification> notificationQueue = new LinkedList<>();
     public static void GetFirstNotification() {
         if (!notificationQueue .isEmpty()) {
@@ -16,8 +16,7 @@ public class NotificationManager {
             notificationQueue .peek().send() ;
             // delete front element from queue
             notificationQueue .poll() ;
-        }else {
-//            System.out.println("There is no current messages to send");
         }
     }
+
 }

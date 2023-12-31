@@ -1,8 +1,11 @@
 package com.example.demo.service.System.Authentication;
 
 import com.example.demo.model.Account;
-
-abstract public class Authorization {
-    public abstract void signUp (Account account) ;
-    public abstract void signIn (Account account) ;
+public class Authorization {
+    public static boolean signUp (Account account) {
+        return false ;
+    }
+    public static boolean signIn (Account account) {
+        return false ;
+    }
 }

@@ -3,7 +3,6 @@ import com.example.demo.model.MessageCreator;
 import com.example.demo.model.Order;
 import com.example.demo.model.Status;
 import com.example.demo.model.UserAccount;
-import com.example.demo.service.Observable;
 import com.example.demo.service.Observer;
 import com.example.demo.service.System.Message.Message;
 
@@ -41,5 +40,12 @@ public class NotificationCreator implements Observer {
         return "NotificationCreator{" +
                 "customer=" + customer +
                 '}';
+    }
+
+    public UserAccount getCustomer() {
+        return customer;
+    }
+    public Order getOrder() {
+        return subject;
     }
 }

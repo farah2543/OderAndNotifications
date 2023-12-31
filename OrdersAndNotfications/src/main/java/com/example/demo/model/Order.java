@@ -4,6 +4,8 @@ import com.example.demo.service.Observable;
 import com.example.demo.service.Observer;
 import com.example.demo.service.System.Notification.NotificationCreator;
 import com.example.demo.service.System.OrderManagerAndCart.CartItem;
+import com.example.demo.service.System.OrderManagerAndCart.feesHandler;
+import org.apache.catalina.User;
 
 import java.util.ArrayList;
 public class Order extends CartItem implements Observable {
@@ -22,6 +24,44 @@ public class Order extends CartItem implements Observable {
     @Override
     public void NotifyAll() {
         observers.forEach(observer -> observer.update(status));
+    }
+    public void payAll() {
+        for (Observer observer : observers) {
+            if (observer instanceof NotificationCreator){
+                UserAccount currentCustomer = DataBase.getUserAccount(((NotificationCreator)observer).getCustomer().getId()) ;
+                currentCustomer.setBalance(currentCustomer.getBalance() - ((NotificationCreator)observer).getOrder().getPrice());
+            }
+        }
+    }
+    public void deductFeeAll () {
+        for (Observer observer : observers) {
+            if (observer instanceof NotificationCreator){
+                UserAccount currentCustomer = DataBase.getUserAccount(((NotificationCreator)observer).getCustomer().getId()) ;
+                currentCustomer.setBalance(currentCustomer.getBalance() - feesHandler.getFees(currentCustomer.getAddress()));
+            }
+        }
+    }
+    public void cancelAll() {
+        for (Observer observer : observers) {
+            if (observer instanceof NotificationCreator){
+                UserAccount currentCustomer = DataBase.getUserAccount(((NotificationCreator)observer).getCustomer().getId()) ;
+                currentCustomer.setBalance(currentCustomer.getBalance() + ((NotificationCreator)observer).getOrder().getPrice());
+            }
+        }
+        ArrayList<Product> products = getProductsOfTheOrder() ;
+        products.forEach(product -> {DataBase.saveProduct(product);});
+    }
+    private ArrayList<Product> getProductsOfTheOrder () {
+        ArrayList<Product> products = new ArrayList<>( ) ;
+        for (CartItem item : items) {
+            if (item instanceof Order) {
+                ArrayList<Product> moreProducts = ((Order) item).getProductsOfTheOrder() ;
+                moreProducts.forEach(product -> products.add(product));
+            }else {
+                products.add((Product) item);
+            }
+        }
+        return products ;
     }
 
     // the whole logic of the order as a composite in composite design pattern
@@ -71,24 +111,19 @@ public class Order extends CartItem implements Observable {
     public Status getStatus() {
         return status;
     }
-
     public Long getUserID() {
         return userID;
     }
-
     public void setItems(ArrayList<CartItem> items) {
         items.forEach(item -> this.items.add(item));
     }
-
     public void setStatus(Status status) {
         this.status = status;
         NotifyAll();
     }
-
     public void setUser(Long userID) {
         this.userID = userID;
     }
-
     public ArrayList<CartItem> getItems() {
         return items;
     }
@@ -98,7 +133,6 @@ public class Order extends CartItem implements Observable {
     public double getPrice() {
         return this.price ;
     }
-
     @Override
     public String toString() {
         return super.toString() +

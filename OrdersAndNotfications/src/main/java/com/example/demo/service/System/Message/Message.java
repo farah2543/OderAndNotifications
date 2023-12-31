@@ -1,8 +1,5 @@
 package com.example.demo.service.System.Message;
-
-import com.example.demo.model.MessageType;
 import com.example.demo.model.UserAccount;
-
 public abstract class Message {
     public Template_lang template ;
     public abstract Template_lang createLangTemplate (UserAccount account , Long orderID) ;

@@ -5,7 +5,7 @@ import com.example.demo.model.Order;
 import com.example.demo.model.Product;
 import com.example.demo.model.UserAccount;
 import com.example.demo.model.Status;
-import com.example.demo.service.System.Notification.NotificationCreator;
+import com.example.demo.service.System.Authentication.UserAuth;
 import com.example.demo.service.System.Notification.NotificationManager;
 import org.springframework.stereotype.Service;
 
@@ -13,25 +13,10 @@ import java.util.List;
 @Service
 public class ServiceImplementation {
     public boolean loginUser(Account user) {
-        UserAccount test = DataBase.getUserAccount(user.getId()) ;
-        if (test != null) {
-            if (test.getPassword().equals(user.getPassword()) && test.getUsername().equals(user.getUsername())) {
-                DataBase.setAuthUser(test);
-                return true ;
-            }else {
-                return false ;
-            }
-        }else {
-            return false ;
-        }
+        return UserAuth.signIn(user) ;
     }
     public boolean registerUser(UserAccount user) {
-        // some validation may be added
-        if (DataBase.getUserAccount(user.getId()) != null) {
-            return false ;
-        }
-        DataBase.saveUserAccount(user);
-        return true ;
+        return UserAuth.signUp(user) ;
     }
     public Account getUser(Long id) {
         return DataBase.getUserAccount(id) ;
@@ -42,15 +27,34 @@ public class ServiceImplementation {
     public List<Product> getAllProducts() {
         return DataBase.getAllProducts() ;
     }
-    public boolean addOrder(Long OrderID) {
+    public String addOrder(Long OrderID) {
         // max 2
         // can't add order of my self
-        Order order = DataBase.getOrder(OrderID) ;
-        if (order != null){
-            DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().addItem(order);
-            return true ;
+        // check location
+        UserAccount customer = DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()) ;
+        if (customer.getCart().getNumberOfOrders() < 2) {
+            Order order = DataBase.getOrder(OrderID) ;
+            if (order != null){
+                UserAccount friend = DataBase.getUserAccount(order.getUserID()) ;
+                if (friend.getAddress().equals(customer.getAddress())) {
+                    if (order.getStatus().equals(Status.Saved)) {
+                        if (!order.getUserID().equals(DataBase.currentAuthUser.getId())) {
+                            DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().addItem(order);
+                            return "Done ";
+                        }else {
+                            return "Can't Add you order to your order";
+                        }
+                    }else{
+                        return "The order you want to add should be saved" ;
+                    }
+                }else {
+                    return "You and your friend should be in the same location" ;
+                }
+            }else {
+                return "No order with this id" ;
+            }
         }else {
-            return false ;
+            return "You can't add more than 2 orders" ;
         }
     }
     public boolean addProduct(Long ProductID) {
@@ -81,12 +85,77 @@ public class ServiceImplementation {
     }
 
     // pay the order
-    public void payOrder (Long OrderID) {
-        // check user
-        // balance deduction
-        // check location
-        // fee
-        Order o = DataBase.getOrder(OrderID) ;
-        o.setStatus(Status.Placed);
+    public String payOrder (Long OrderID) {
+        // check user done
+        // balance deduction done
+        // fee random ??
+        Order order = DataBase.getOrder(OrderID) ;
+        if (order != null) {
+            if (order.getUserID().equals(DataBase.getCurrentAuthUser().getId())) {
+                order.setStatus(Status.Placed);
+                order.payAll();
+                return "Done" ;
+            }else {
+                return "You Don't have authorization to do this" ;
+            }
+        }else {
+            return "No order with this id" ;
+        }
+    }
+
+    public String shipOrder (Long OrderID) {
+        Order order = DataBase.getOrder(OrderID) ;
+        if (order != null){
+            if (order.getUserID().equals(DataBase.getCurrentAuthUser().getId())) {
+                if (order.getStatus().equals(Status.Placed) || order.getStatus().equals(Status.CancelledShipment)) {
+                    order.setStatus(Status.Shipped);
+                    order.deductFeeAll(); ;
+                    return "Done" ;
+                }else {
+                    return "Your order should be placed or canceled its shipment before to be shipped" ;
+                }
+            }else {
+                return "You Don't have authorization to do this" ;
+            }
+        }else {
+            return "No order with this id" ;
+        }
+    }
+    public void addBalance (Account account , double balance) {
+        UserAccount customer = DataBase.getUserAccount(account.getId()) ;
+        customer.setBalance(customer.getBalance() + balance);
+    }
+    public double getBalance (Account customer) {
+        return DataBase.getUserAccount(customer.getId()).getBalance() ;
+    }
+
+    public String cancelPlacement (Long OrderID) {
+        Order order = DataBase.getOrder(OrderID) ;
+        if (order != null) {
+            if (!order.getStatus().equals(Status.Saved)) {
+                order.cancelAll() ;
+                return "Done" ;
+            }else {
+                return "Yon can't cancel a non placed order" ;
+            }
+        }else {
+            return "No order with this id" ;
+        }
+    }
+    public String cancelShipment (Long OrderID) {
+        Order order = DataBase.getOrder(OrderID) ;
+        if (order != null) {
+            if (order.getStatus().equals(Status.Shipped)) {
+                order.setStatus(Status.CancelledShipment);
+                return "Done" ;
+            }else {
+                return "You Can't cancel shipment for non shipped order" ;
+            }
+        }else {
+            return "No order with this id" ;
+        }
+    }
+    public Order getOrder (Long OrderID){
+        return DataBase.getOrder(OrderID) ;
     }
 }

@@ -1,7 +1,5 @@
 package com.example.demo.service.System.Message;
-
 import com.example.demo.model.UserAccount;
-
 public class OrderMessageEnglish extends Template_lang {
     @Override
     public void createTemplate() {

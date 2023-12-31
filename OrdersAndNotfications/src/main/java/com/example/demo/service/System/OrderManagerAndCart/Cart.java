@@ -1,6 +1,7 @@
 package com.example.demo.service.System.OrderManagerAndCart;
 
 import com.example.demo.DataBase;
+import com.example.demo.model.Order;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
 public class Cart {
     Long id ;
     ArrayList<CartItem> items ;
+    int numberOfOrders = 0 ;
     public Cart () {
         this.id = DataBase.lastCartID ;
         DataBase.lastCartID ++ ;
@@ -22,6 +24,9 @@ public class Cart {
         this.id = id;
     }
     public void addItem (CartItem item) {
+        if (item instanceof Order) {
+            numberOfOrders ++ ;
+        }
         this.items.add(item);
     }
 
@@ -31,5 +36,9 @@ public class Cart {
 
     public ArrayList<CartItem> getItems() {
         return items;
+    }
+
+    public int getNumberOfOrders() {
+        return numberOfOrders;
     }
 }
