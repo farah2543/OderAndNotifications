@@ -39,8 +39,11 @@ public class DataBase{
     public static Account getCurrentAuthUser () {
         return currentAuthUser ;
     }
+    public static void deleteProduct (Long ProductId) {
+        products.remove(ProductId) ;
+    }
     public static List<Account> getAllUserAccounts () {
-        List<Account> out = new ArrayList<>() ;
+        ArrayList<Account> out = new ArrayList<>() ;
         userAccounts.forEach((k , v) -> out.add(v));
         return out ;
     }

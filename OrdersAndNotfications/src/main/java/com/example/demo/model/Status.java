@@ -1,4 +1,4 @@
-package com.example.demo.service.System.OrderManagerAndCart;
+package com.example.demo.model;
 
 public enum Status {
     Saved , Placed , Shipped , Delivered , Cancelled

@@ -4,8 +4,11 @@ import com.example.demo.model.Account;
 import com.example.demo.model.Order;
 import com.example.demo.model.Product;
 import com.example.demo.model.UserAccount;
-import com.example.demo.service.System.OrderManagerAndCart.Status;
+import com.example.demo.model.Status;
+import com.example.demo.service.System.Notification.NotificationCreator;
+import com.example.demo.service.System.Notification.NotificationManager;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 @Service
 public class ServiceImplementation {
@@ -40,8 +43,11 @@ public class ServiceImplementation {
         return DataBase.getAllProducts() ;
     }
     public boolean addOrder(Long OrderID) {
-        if (DataBase.getProduct(OrderID) != null){
-            DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().addItem(DataBase.getOrder(OrderID));
+        // max 2
+        // can't add order of my self
+        Order order = DataBase.getOrder(OrderID) ;
+        if (order != null){
+            DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().addItem(order);
             return true ;
         }else {
             return false ;
@@ -49,28 +55,38 @@ public class ServiceImplementation {
     }
     public boolean addProduct(Long ProductID) {
         if (DataBase.getProduct(ProductID) != null){
-            DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().addItem(DataBase.getProduct(ProductID));
-            System.out.println(DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().getItems());
+            UserAccount currentAccount = DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()) ;
+            currentAccount.getCart().addItem(DataBase.getProduct(ProductID));
+            DataBase.deleteProduct(ProductID);
             return true ;
         }else {
             return false ;
         }
     }
-
     public Order convertCartToOrder() {
         UserAccount currentAccount = DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()) ;
-        System.out.println(currentAccount.getCart().getItems());
-        Order order = new Order(DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().getItems());
-        order.setUser(currentAccount);
+        Order order = new Order(currentAccount.getCart().getItems());
+        order.setUser(currentAccount.getId());
+        order.totalPrice() ;
+        order.assignObservers() ;
         order.setStatus(Status.Saved);
         DataBase.orders.put(order.getId() , order) ;
-        DataBase.getUserAccount(DataBase.getCurrentAuthUser().getId()).getCart().getItems().clear();
+        currentAccount.getCart().getItems().clear();
         return order ;
     }
-    //    @Override
-//    public void checkOut(Order order) {
-//        // add order to list
-//        // deduct all products
-//        // add notification to all users
-//    }
+
+    // check if there is notification to send
+    public void checkNotification () {
+        NotificationManager.GetFirstNotification();
+    }
+
+    // pay the order
+    public void payOrder (Long OrderID) {
+        // check user
+        // balance deduction
+        // check location
+        // fee
+        Order o = DataBase.getOrder(OrderID) ;
+        o.setStatus(Status.Placed);
+    }
 }

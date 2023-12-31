@@ -27,9 +27,7 @@ public abstract class CartItem {
 
     @Override
     public String toString() {
-        return "CartItem{" +
-                "id=" + id +
-                ", price=" + price +
-                '}';
+        return  "id :" + id + "\n" +
+                "price : " + price ;
     }
 }

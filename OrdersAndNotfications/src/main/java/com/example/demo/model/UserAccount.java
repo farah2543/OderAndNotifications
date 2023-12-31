@@ -1,20 +1,20 @@
 package com.example.demo.model;
 
-import com.example.demo.service.System.Message.Lang;
 import com.example.demo.service.System.OrderManagerAndCart.Cart;
 
 public class UserAccount extends Account{
     Cart cart ;
-    String name , phone , address ;
+    String name , phone , address , mail;
     double balance ;
     Lang preferedLang ;
-    public UserAccount(Long id , String username , String password , Cart cart , String name , String phone , String address , Lang lang) {
+    public UserAccount(Long id , String username , String password , Cart cart , String name , String phone , String address , Lang lang , String mail) {
         super(id , username , password) ;
         this.cart = cart ;
         this.name = name ;
         this.phone = phone ;
         this.address = address ;
         this.preferedLang = lang ;
+        this.mail = mail ;
     }
 
     public double getBalance() {
@@ -64,12 +64,21 @@ public class UserAccount extends Account{
     public void setPreferedLang(Lang preferedLang) {
         this.preferedLang = preferedLang;
     }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
     @Override
     public String toString() {
         return super.toString() + "name : " + name + "\n"
                 + "phone : " + phone + "\n"
                 + "address : " + address + "\n"
                 + "balance : " + balance + "\n"
-                + "Lang : " + preferedLang + "\n" ;
+                + "Lang : " + preferedLang + "\n"
+                + "Mail : " + mail;
     }
 }
